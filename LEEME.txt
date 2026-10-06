@@ -1,0 +1,24 @@
+PROYECTOS DE CLIENTES Y ESTUDIANTES - GUÍA 1
+
+proyecto_clientes: código original del ejemplo del docente.
+proyecto_estudiantes: adaptación de la tarea, con lógica de ciclos y condiciones.
+
+Extrae todo el ZIP y abre la carpeta del proyecto que deseas ejecutar.
+En una terminal dentro de esa carpeta escribe:
+
+python main.py
+
+En Windows también puedes utilizar py main.py.
+En macOS o Linux puedes utilizar python3 main.py.
+Necesitas Python 3. No se instalan bibliotecas externas.
+
+Cada proyecto tiene su propio JSON dentro de data/. Ambos comienzan vacíos.
+Esta versión incluye comentarios detallados para estudiar cada bloque de código.
+GUIA_DE_ESTUDIO.txt explica conceptos, recorridos y ejemplos paso a paso.
+Su lógica ejecutable es la misma que la de la versión para entregar.
+
+En Estudiantes, las materias se guardan en minúsculas y sin espacios sobrantes
+al inicio o al final: Matematicas y matematicas se consideran la misma materia.
+También se normalizan los nombres al leer registros anteriores, conservando
+todas las notas. Las tildes se conservan: matemática y matematica son distintas.
+Las notas decimales se escriben con punto, por ejemplo 18.5.

@@ -1,0 +1,251 @@
+GUÍA PARA ENTENDER LOS DOS PROYECTOS
+
+Esta carpeta contiene los mismos programas que la versión para entregar.
+Los comentarios explicativos no modifican el funcionamiento.
+Los JSON comienzan vacíos para ingresar tus propios registros.
+
+1. EN QUÉ ORDEN ESTUDIAR
+
+Primero mira shared/__init__.py: está vacío, como pide el docente. Permite
+usar shared como paquete. No necesita funciones ni instrucciones.
+
+Después lee shared/herramientas.py: agrupa las tareas de presentación y
+validación reutilizables. Cada función tiene una explicación en comentarios.
+
+Continúa con shared/json_manager.py: aquí se abren y guardan los archivos.
+Después lee models.py: define qué contiene cada objeto y sus métodos.
+Luego views.py: contiene las reglas y las operaciones del controlador.
+Finalmente main.py: reúne la interacción del usuario con esas operaciones.
+
+Aunque views.py se llame así, en esta guía es el CONTROLADOR.
+main.py es la VISTA. Conservamos los nombres usados por el docente.
+
+2. CONCEPTOS NECESARIOS
+
+Variable: un nombre asociado con un valor. total = 0 prepara un acumulador.
+Asignación =: guarda un valor. Comparación ==: pregunta si dos valores son iguales.
+if: ejecuta un bloque cuando se cumple una condición.
+else: ejecuta la alternativa cuando la condición anterior no se cumple.
+for: recorre una colección. Una vuelta procesa un elemento.
+while: repite un bloque mientras la condición sea verdadera.
+break: termina el ciclo más cercano.
+continue: termina la vuelta actual y vuelve al inicio del ciclo.
+def: define una función. No ejecuta su cuerpo al definirla.
+funcion(): llama y ejecuta la función. Los paréntesis son importantes.
+return: entrega un resultado al lugar que hizo la llamada y termina la función.
+None: ausencia de un resultado; no es un estudiante ni una lista vacía.
+True / False: valores booleanos usados para condiciones y respuestas.
+not: invierte una condición. and exige ambas condiciones; or acepta alguna.
+in: comprueba pertenencia; en un texto puede buscar un fragmento.
+
+Ejemplo de tupla de respuesta:
+
+    return False, "Ese carnet ya está registrado"
+
+La función devuelve dos valores juntos. La Vista los recibe así:
+
+    exito, mensaje = crear_estudiante(datos)
+
+exito recibe False y mensaje recibe el texto. Esto se llama desempaquetar.
+
+3. LAS CUATRO COLECCIONES QUE EXIGE EL DOCENTE
+
+LISTA: guarda registros y notas en orden. Se representa con [] y admite repetidos.
+Ejemplo: notas = [18, 20, 18]. append(16) agrega 16 al final.
+Una nota puede repetirse: dos evaluaciones pueden tener la misma calificación.
+
+TUPLA: guarda datos fijos. Se representa con ().
+CAMPOS_ESTUDIANTE fija los nombres y el orden de los campos personales.
+También usamos tuplas para (exito, mensaje) y para (texto, funcion) en el menú.
+
+CONJUNTO: guarda valores sin repetir. Se crea vacío con set(), no con {}.
+{} vacío es un diccionario. add() agrega un elemento al conjunto.
+Los carnets registrados y las materias se trabajan como conjuntos.
+A & B devuelve solo los elementos presentes en ambos: intersección.
+A | B es la unión; A - B es la diferencia, como explica la guía.
+Los conjuntos no conservan un orden de presentación; sorted() los muestra ordenados.
+
+DICCIONARIO: guarda pares clave: valor y se representa con {}.
+Ejemplo: {"nombre": "Ana", "carnet": "EST001"}.
+datos["nombre"] obtiene "Ana". datos["nombre"] = "Sol" cambia ese campo.
+get("clave", valor_alternativo) evita un error cuando no existe la clave.
+items() entrega parejas clave y valor. values() entrega solo los valores.
+
+4. CLASES Y OBJETOS
+
+La clase Estudiante es la definición común. Cada objeto representa una persona.
+Estudiante(1, "Ana", "Pérez", "ana@escuela.edu", "EST001") crea un objeto.
+El constructor __init__ guarda sus datos. self representa ese objeto específico.
+self.nombre dentro de la clase y estudiante.nombre fuera se refieren a su atributo.
+Un método es una función definida dentro de una clase.
+
+estudiante.obtener_nombre_completo() devuelve el nombre y apellido unidos.
+estudiante.agregar_nota("matemática", 18) modifica sus colecciones en memoria.
+Ese método del MODELO no guarda por sí solo en el disco.
+agregar_nota(id_estudiante, materia, nota) en views.py sí coordina validación y guardado.
+
+@classmethod se mantiene porque aparece en el modelo del docente.
+Permite llamar Estudiante.desde_diccionario(registro) sin tener un objeto previo.
+cls representa la clase; cls(...) crea y devuelve un objeto nuevo.
+
+__str__ devuelve el texto que representa al objeto cuando se muestra.
+No crea otro registro y no guarda el archivo.
+
+5. OBJETO, DICCIONARIO Y JSON NO SON LO MISMO
+
+Objeto: tiene atributos y métodos.
+Diccionario: es la ficha de datos que puede convertirse a JSON.
+JSON: texto almacenado en el archivo del disco.
+
+Guardar:
+    objeto -> a_diccionario() -> ficha -> lista de fichas -> guardar()
+
+Leer:
+    leer() -> lista de fichas -> desde_diccionario() -> objetos
+
+Las materias son un set dentro del objeto. JSON no admite set.
+a_diccionario() usa sorted() para convertirlas en una lista ordenada.
+El constructor reconstruye el conjunto al volver a leer la ficha.
+Las listas de notas se conservan como listas y pueden contener notas repetidas.
+
+json.load(archivo) lee JSON desde un archivo.
+json.dump(datos, archivo) escribe JSON en el ejemplo original de Clientes.
+json.dumps(datos) crea un texto JSON en memoria.
+En Estudiantes se prepara ese texto antes de abrir el archivo para escribir.
+ensure_ascii=False conserva las letras acentuadas de forma legible.
+indent=2 da formato con sangría. allow_nan=False rechaza valores no válidos
+como NaN e infinito y evita escribirlos en el archivo.
+
+with open(...) abre el archivo y lo cierra al terminar el bloque.
+"r" significa lectura. "w" significa escribir reemplazando el contenido.
+encoding="utf-8" permite trabajar con tildes y otros caracteres.
+
+6. CREAR UN ESTUDIANTE, PASO A PASO
+
+1. main.py pide nombre, apellido, email y carnet mediante input().
+2. Forma el diccionario datos y llama crear_estudiante(datos).
+3. views.py recorre CAMPOS_ESTUDIANTE y quita espacios extremos con strip().
+4. validar_datos() comprueba obligatorios, email y carnet duplicado.
+5. carnets_registrados() construye un set. lower() hace uniforme la comparación.
+6. siguiente_id() busca el mayor ID existente con un ciclo y le suma uno.
+7. El controlador construye el objeto Estudiante.
+8. Lee los registros, agrega la nueva ficha con append() y llama guardar().
+9. Devuelve (True, mensaje) solo si se pudo guardar.
+10. main.py muestra el mensaje y espera Enter.
+
+No usamos la cantidad de registros para calcular el nuevo ID.
+Si hay IDs 1, 3 y 8, hay tres registros, pero el siguiente ID debe ser 9.
+La regla sigue la guía: si eliminas el mayor ID, puede reutilizarse posteriormente.
+
+7. ACTUALIZAR SIN BORRAR NOTAS
+
+La Vista prepara cambios con los campos que escribiste.
+Dejar un campo en blanco significa no modificarlo.
+El controlador busca el ID y copia su ficha con copy().
+Esta copia es superficial: conserva referencias a colecciones internas.
+Aquí solo cambiamos campos personales, y el constructor reconstruye las listas
+de notas en el objeto nuevo antes de convertirlo nuevamente a diccionario.
+Por eso editar el apellido no borra las notas ni las materias inscritas.
+
+Al revisar duplicados excluimos el ID del estudiante que se está editando.
+Su propio carnet no debe contarse como un carnet de otra persona.
+El ID, las notas y las materias no son campos editables en este formulario.
+
+8. AGREGAR NOTAS Y VALIDAR SU RANGO
+
+input() devuelve texto, incluso cuando escribes 18.
+El controlador transforma ese texto a número decimal mediante float().
+try/except ValueError permite devolver un mensaje si escribiste letras.
+Después exige 0 <= nota <= 20. Ambas fronteras son válidas.
+not (0 <= nota <= 20) significa que el valor no cumple el intervalo.
+También rechaza nan e infinito. NaN significa "no es un número".
+
+La materia se normaliza con strip().lower().
+Se crea su lista vacía solo si no existía y se agrega la nota con append().
+inscribir_materia() registra su nombre en el set sin duplicarlo.
+Por último el controlador reemplaza la ficha del estudiante en la lista y guarda.
+
+9. CALCULAR EL PROMEDIO CON LÓGICA
+
+notas = {"matemática": [18, 20], "inglés": [16]}
+
+total = 0 y cantidad = 0 al comenzar.
+La primera nota deja total = 18 y cantidad = 1.
+La segunda deja total = 38 y cantidad = 2.
+La tercera deja total = 54 y cantidad = 3.
+Resultado: 54 / 3 = 18. round(..., 2) redondea a dos decimales.
+El promedio pesa por cada nota individual, igual que el modelo del docente.
+No calculamos primero un promedio por materia.
+Si cantidad es cero, devolvemos 0 antes de dividir.
+
+10. NORMALIZAR MATERIAS Y LEER DATOS ANTERIORES
+
+" Matematicas " y "matematicas" se convierten en "matematicas".
+"MATEMÁTICA" y "matemática" se convierten en "matemática".
+Las tildes NO se eliminan: "matemática" y "matematica" siguen siendo diferentes.
+Tampoco se cambian espacios interiores ni se corrigen faltas de ortografía.
+
+El constructor normaliza tanto las materias como las claves de las notas.
+Si una ficha antigua contiene "Matematicas": [18] y "matematicas": [20],
+ambas listas se reúnen como "matematicas": [18, 20], sin perder las notas.
+También registra las materias que aparecen en el diccionario de notas.
+Esta normalización ocurre en los objetos leídos; no escribe automáticamente
+en el archivo. Se guarda cuando una operación modifica esa ficha y la guarda.
+
+11. EL MENÚ DEL DOCENTE
+
+OPCIONES relaciona "1" con ("Crear estudiante", opcion_crear).
+Las funciones se guardan SIN paréntesis. opcion_crear es la función;
+opcion_crear() es una llamada que la ejecuta.
+texto, funcion = OPCIONES[tecla] separa los dos elementos de la tupla.
+funcion() ejecuta la opción elegida.
+Con este patrón, el mismo diccionario sirve para mostrar y ejecutar el menú.
+El código conserva el patrón enseñado en la guía.
+
+12. FORMATO Y ERRORES
+
+f"{promedio:.2f}" muestra dos decimales: 18 -> 18.00.
+f"{nombre:<25}" alinea a la izquierda con un ancho mínimo de 25 caracteres.
+f"{nota:g}" muestra números sin ceros decimales innecesarios.
+Las f-strings son presentación, no cambian los valores numéricos guardados.
+
+Un JSON inexistente es normal al comenzar: se usa una lista vacía.
+Un JSON dañado no debe confundirse con una lista vacía.
+En Estudiantes la lectura produce un error y main.py lo presenta.
+Las excepciones OSError representan problemas de acceso a archivos.
+ValueError también permite manejar conversiones inválidas o JSON inválido.
+En Clientes conservamos el tratamiento original de la guía.
+
+13. QUÉ SE SIMPLIFICÓ EN ESTUDIANTES
+
+Se utilizan ciclos y condiciones para construir colecciones y obtener el mayor ID.
+No hay comprensiones, lambda, generadores, sum(), max(), min() ni getattr().
+No se utiliza **valores para crear el objeto; sus argumentos están explícitos.
+No se utiliza setdefault() para crear la lista de notas; se usa if y append().
+Se conservan métodos básicos de colecciones y texto, round(), sorted(),
+@classmethod y el diccionario de opciones porque tienen un propósito claro
+y forman parte de las herramientas o del patrón del docente.
+
+El proyecto de Clientes se mantiene igual al código original.
+Por eso allí sí verás comprensiones, sum(), max(), setdefault() y **valores.
+Una comprensión condensa un ciclo en una expresión. Al estudiar Clientes,
+léela como: recorrer la colección, aplicar la condición y guardar el resultado.
+
+14. PRUEBA QUE PUEDES HACER PARA DEFENDER EL PROYECTO
+
+1. Crea a Ana con carnet EST001 y a Luis con EST002.
+2. Intenta crear otra persona con est001: se rechaza por duplicado.
+3. Agrega a Ana Matematicas 18 y matematicas 20.
+4. Agrega a Luis MATEMATICAS 16.
+5. La materia común debe ser matematicas.
+6. El promedio de Ana debe ser 19.00.
+7. Agrega a Ana Inglés 16: su promedio pasa a 18.00.
+8. Prueba notas -1, 21, nan y texto: deben rechazarse.
+9. Prueba notas 0 y 20: deben aceptarse.
+10. Actualiza el apellido de Ana y consulta sus notas: se conservan.
+11. Cierra y vuelve a ejecutar: los registros y conjuntos se recuperan.
+12. Elimina a Luis y confirma que Ana sigue registrada.
+
+La entrega cumple el apartado de Estudiantes: cinco operaciones, carnet único
+con set, notas de 0 a 20, promedio, materias ofertadas, intersección, menú,
+cuatro colecciones justificadas en comentarios y persistencia JSON.
